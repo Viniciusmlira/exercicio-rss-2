@@ -36,6 +36,15 @@ class MainActivity : AppCompatActivity() {
         RSS_FEED = getString(R.string.rssfeed)
         setContentView(R.layout.activity_main)
 
+        setActionBar()
+
+        runRSSUpdateService()
+
+        setBroadcastReceiver()
+    }
+
+    fun setActionBar() {
+
         setSupportActionBar(toolbar)
 
         // Now get the support action bar
@@ -54,13 +63,16 @@ class MainActivity : AppCompatActivity() {
         actionBar.setDisplayShowHomeEnabled(true)
         actionBar.setLogo(R.mipmap.ic_launcher)
         actionBar.setDisplayUseLogoEnabled(true)
+    }
 
+    fun runRSSUpdateService() {
+        val intent = Intent(this, RSSService::class.java)
+        if (this != null) {
+            this.startService(intent)
+        }
+    }
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        prefs.getString("rssfeed", "<unset>")
-
-        runRSSUpdateService()
-
+    fun setBroadcastReceiver() {
         val broadCastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
@@ -73,21 +85,6 @@ class MainActivity : AppCompatActivity() {
                 "updateFeed")
 
         this.registerReceiver(broadCastReceiver, intentFilter);
-    }
-
-    fun runRSSUpdateService() {
-        val intent = Intent(this, RSSService::class.java)
-        if (this != null) {
-            this.startService(intent)
-        }
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu to use in the action bar
-        val inflater = menuInflater
-        inflater.inflate(R.menu.toolbar_menu, menu)
-        return super.onCreateOptionsMenu(menu)
     }
 
     fun markAsRead(link: String) {
@@ -110,19 +107,6 @@ class MainActivity : AppCompatActivity() {
         val dbHandler = SQLiteRSSHelper(this)
 
         return dbHandler.getItems()
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle presses on the action bar menu items
-        when (item.itemId) {
-            R.id.action_config -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     protected override fun onStart() {
@@ -187,6 +171,32 @@ class MainActivity : AppCompatActivity() {
         } catch(e: UnsupportedOperationException) {
             e.printStackTrace()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu to use in the action bar
+        val inflater = menuInflater
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle presses on the action bar menu items
+        when (item.itemId) {
+            R.id.action_config -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun configureBackgroundReceiver() {
+        val filter = IntentFilter()
+        filter.addAction("updateFeed2")
+        val receiver = RSSReceiver()
+        registerReceiver(receiver, filter)
     }
 
 

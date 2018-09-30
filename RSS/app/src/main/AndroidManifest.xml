@@ -23,6 +23,12 @@
         <service
             android:name=".RSSService">
         </service>
+        <receiver android:name="RSSReceiver">
+            <intent-filter>
+                <action android:name="updateFeed2">
+                </action>
+            </intent-filter>
+        </receiver>
     </application>
 
 
