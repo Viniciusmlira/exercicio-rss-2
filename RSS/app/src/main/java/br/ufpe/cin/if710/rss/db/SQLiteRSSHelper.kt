@@ -13,6 +13,7 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
     internal var c:Context
     val items: Cursor?
         @Throws(SQLException::class)
+        //retorna todos os itens nao lidos
         get() {
             val query =
                     "SELECT * FROM " + RssProviderContract.ITEMS_TABLE + " WHERE " + RssProviderContract.UNREAD + " =  \"true\""
@@ -39,6 +40,8 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
     fun insertItem(item:ItemRSS): Double {
         return insertItem(item.title, item.pubDate, item.description, item.link)
     }
+
+    //checa se existe algum item com o mesmo link. classifica como unread for um item novo
     fun insertItem(title:String, pubDate:String, description:String, link:String): Double {
 
         val alreadyExists = getItemRSS(link) != null
@@ -58,9 +61,11 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
         db.insert(RssProviderContract.ITEMS_TABLE, null, values)
         db.close()
 
-        return 0.0
+        return 1.0
     }
+
     @Throws(SQLException::class)
+    //busca todos os itens
     fun getItemRSS(link:String):ItemRSS? {
 
         val query =
@@ -87,6 +92,8 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
 
         return item
     }
+
+    //mostra um item na lista, mostrando-o como nao lido
     fun markAsUnread(link:String):Boolean {
         val db = this.writableDatabase
         val values = ContentValues()
@@ -98,6 +105,8 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
 
         return Integer.parseInt("$_success") != -1
     }
+
+    //retira um item da lista, mostrando-o como lido
     fun markAsRead(link:String):Boolean {
         val db = this.writableDatabase
         val values = ContentValues()
@@ -109,6 +118,8 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
 
         return Integer.parseInt("$_success") != -1
     }
+
+    //retorna todos os itens nao lidos
     fun getItems():List<ItemRSS> {
         val items = ArrayList<ItemRSS>()
 

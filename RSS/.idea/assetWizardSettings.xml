@@ -18,8 +18,10 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="foregroundAssetType" value="CLIP_ART" />
-                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../../../settings.png" />
+                                      <entry key="backgroundLayerName" value="ic_launcher_background" />
+                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../../../alert_notify.png" />
+                                      <entry key="foregroundLayerName" value="ic_launcher_foreground" />
+                                      <entry key="outputName" value="notification_icon" />
                                     </map>
                                   </option>
                                 </PersistentState>

@@ -1,12 +1,16 @@
 package br.ufpe.cin.if710.rss
 
+import android.app.ActivityManager
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.preference.PreferenceManager
+import android.support.v4.app.NotificationCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
@@ -38,11 +42,13 @@ class MainActivity : AppCompatActivity() {
 
         setActionBar()
 
-        runRSSUpdateService()
+        val handler = Handler()
+        handler.postDelayed({ runRSSUpdateService() }, 5000)
 
         setBroadcastReceiver()
     }
 
+    //cria a toolbar
     fun setActionBar() {
 
         setSupportActionBar(toolbar)
@@ -65,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         actionBar.setDisplayUseLogoEnabled(true)
     }
 
+
     fun runRSSUpdateService() {
         val intent = Intent(this, RSSService::class.java)
         if (this != null) {
@@ -72,11 +79,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //liga o receptor do broadcast e verifica se o feed foi carregado
     fun setBroadcastReceiver() {
+        //Main Activity Receiver
         val broadCastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
-                    "updateFeed" -> updateRSSItems()
+                    "updateFeed" -> loadRSSItems()
                 }
             }
         }
@@ -84,7 +93,13 @@ class MainActivity : AppCompatActivity() {
         val intentFilter = IntentFilter(
                 "updateFeed")
 
-        this.registerReceiver(broadCastReceiver, intentFilter);
+        this.registerReceiver(broadCastReceiver, intentFilter)
+
+        // RSS Notification Service
+        val notifFilter = IntentFilter()
+        notifFilter.addAction("updateFeed")
+        val receiver: RSSReceiver = RSSReceiver()
+        registerReceiver(receiver, notifFilter)
     }
 
     fun markAsRead(link: String) {
@@ -113,12 +128,6 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         loadRSSItems()
-    }
-
-    fun updateRSSItems() {
-        loadRSSItems()
-
-        Toast.makeText(this, "O seu feed atualizado!", Toast.LENGTH_SHORT).show()
     }
 
     fun loadRSSItems() {
@@ -173,8 +182,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu to use in the action bar
+        // infla o menu para usar a toolbar
         val inflater = menuInflater
         inflater.inflate(R.menu.toolbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
@@ -191,13 +201,4 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
-    private fun configureBackgroundReceiver() {
-        val filter = IntentFilter()
-        filter.addAction("updateFeed2")
-        val receiver = RSSReceiver()
-        registerReceiver(receiver, filter)
-    }
-
-
 }

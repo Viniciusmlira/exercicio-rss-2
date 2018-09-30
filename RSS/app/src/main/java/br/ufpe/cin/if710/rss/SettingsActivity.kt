@@ -16,7 +16,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-
     class SettingsFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)

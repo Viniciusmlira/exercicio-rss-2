@@ -12,6 +12,8 @@ import java.net.URL
 import java.nio.charset.Charset
 
 class RSSService : IntentService(RSSService::class.simpleName) {
+
+    //busca a referencia definida nas preferencias
     override fun onHandleIntent(p0: Intent?) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val rssfeed = prefs.getString("rssfeed", "<unset>")
@@ -20,10 +22,11 @@ class RSSService : IntentService(RSSService::class.simpleName) {
 
         val feedXML = getRssFeed(rssfeed)
         val feedRSS = ParserRSS.parse(feedXML)
-        updateDB(feedRSS)
+        val hasNewEntries = updateDB(feedRSS)
 
         val intent = Intent()
         intent.action = "updateFeed"
+        intent.putExtra("HasNewEntries", hasNewEntries)
         sendBroadcast(intent)
     }
 
@@ -62,13 +65,19 @@ class RSSService : IntentService(RSSService::class.simpleName) {
         return rssFeed
     }
 
-    fun updateDB(feedRSS:List<ItemRSS>) {
+    //se encontrar conteudo, atualiza o banco
+    fun updateDB(feedRSS:List<ItemRSS>): Boolean {
+
+        var hasNewEntries = false
 
         val dbHandler = SQLiteRSSHelper(this)
 
         for (item in feedRSS) {
-            dbHandler.insertItem(item)
+            val hasInserted = dbHandler.insertItem(item)
+            hasNewEntries = hasNewEntries || (hasInserted == 1.0)
         }
+
+        return hasNewEntries
     }
 
 }
