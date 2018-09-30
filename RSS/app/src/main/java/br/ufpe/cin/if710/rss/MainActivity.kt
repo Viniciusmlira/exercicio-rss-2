@@ -1,9 +1,13 @@
 package br.ufpe.cin.if710.rss
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
@@ -54,22 +58,36 @@ class MainActivity : AppCompatActivity() {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.getString("rssfeed", "<unset>")
+
+        runRSSUpdateService()
+
+        val broadCastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    "updateFeed" -> updateRSSItems()
+                }
+            }
+        }
+
+        val intentFilter = IntentFilter(
+                "updateFeed")
+
+        this.registerReceiver(broadCastReceiver, intentFilter);
     }
+
+    fun runRSSUpdateService() {
+        val intent = Intent(this, RSSService::class.java)
+        if (this != null) {
+            this.startService(intent)
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu to use in the action bar
         val inflater = menuInflater
         inflater.inflate(R.menu.toolbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
-    }
-
-    fun readRSSFEED() {
-        val dbHandler = SQLiteRSSHelper(this)
-
-    }
-
-    fun updateRSSFEED() {
-        val dbHandler = SQLiteRSSHelper(this)
     }
 
     fun markAsRead(link: String) {
@@ -113,12 +131,15 @@ class MainActivity : AppCompatActivity() {
         loadRSSItems()
     }
 
+    fun updateRSSItems() {
+        loadRSSItems()
+
+        Toast.makeText(this, "O seu feed atualizado!", Toast.LENGTH_SHORT).show()
+    }
+
     fun loadRSSItems() {
         //uso de doasync com anko
         doAsync {
-
-            //val feedXML = getRssFeed(RSS_FEED)
-            //feedRSS = ParserRSS.parse(feedXML)
 
             feedRSS = getUnreadItems()
 
@@ -168,38 +189,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @Throws(IOException::class)
-    private fun getRssFeed(feed:String):String {
-        var input:InputStream? = null
-        var rssFeed = ""
 
-        //requisita conteudo do link
-        try
-        {
-            val url = URL(feed)
-            val conn = url.openConnection() as HttpURLConnection
-            input = conn.getInputStream()
-            val out = ByteArrayOutputStream()
-            val buffer = ByteArray(1024)
-            var count:Int = input.read(buffer)
-            while (count != -1) {
-                out.write(buffer, 0, count)
-                count = input.read(buffer)
-            }
-
-            val response = out.toByteArray()
-
-            val charset: Charset = Charsets.UTF_8
-
-            rssFeed = String(response, charset)
-        }
-
-        finally {
-            if (input != null)
-            {
-                input.close()
-            }
-        }
-        return rssFeed
-    }
 }

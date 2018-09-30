@@ -40,6 +40,11 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
         return insertItem(item.title, item.pubDate, item.description, item.link)
     }
     fun insertItem(title:String, pubDate:String, description:String, link:String): Double {
+
+        val alreadyExists = getItemRSS(link) != null
+
+        if (alreadyExists) return 0.0
+
         val values = ContentValues()
 
         values.put(RssProviderContract.TITLE, title)
@@ -56,7 +61,7 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
         return 0.0
     }
     @Throws(SQLException::class)
-    fun getItemRSS(link:String):ItemRSS {
+    fun getItemRSS(link:String):ItemRSS? {
 
         val query =
                 "SELECT * FROM " + RssProviderContract.ITEMS_TABLE + " WHERE " + RssProviderContract.LINK + " =  \"$link\""
@@ -65,7 +70,7 @@ class SQLiteRSSHelper constructor(context:Context):SQLiteOpenHelper(context, DAT
 
         val cursor = db.rawQuery(query, null)
 
-        lateinit var item: ItemRSS
+        var item: ItemRSS? = null
 
         if (cursor.moveToFirst()) {
             cursor.moveToFirst()

@@ -38,4 +38,5 @@ dependencies {
     implementation "org.jetbrains.anko:anko:0.10.6"
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation 'com.android.support:preference-v7:27.1.1'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
