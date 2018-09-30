@@ -19,10 +19,20 @@ class RSSItemAdapter(private val feedItems: List<ItemRSS>,
         return feedItems.size
     }
 
+    //exibe as informacoes de titulo e data requisitadas
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)  {
+
+        // dá nome aos atributos do xml do itemlista
+        val title = itemView.item_titulo
+        val pubdate = itemView.item_data
+
+    }
+
     //detecta que a acao de clique foi realizada no titulo da noticia
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val rssItem = feedItems[position]
 
+        // pareia o atributo no xml com seu respectivo valor para cada item no loop
         holder.let {
             it.title.text = rssItem.title
             it.title.setOnClickListener({listener.onClick(it, rssItem)})
@@ -36,13 +46,6 @@ class RSSItemAdapter(private val feedItems: List<ItemRSS>,
         return ViewHolder(view)
     }
 
-    //exibe as informacoes de titulo e data requisitadas
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)  {
-
-        val title = itemView.item_titulo
-        val pubdate = itemView.item_data
-
-    }
 
     interface OnItemClickListener {
         fun onClick(view: View, data: ItemRSS)

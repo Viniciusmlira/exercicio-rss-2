@@ -1,8 +1,12 @@
 package br.ufpe.cin.if710.rss
 
-import android.app.Activity
+import android.content.Intent
+import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -15,7 +19,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 import java.nio.charset.Charset
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var RSS_FEED: String
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -25,6 +29,50 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         RSS_FEED = getString(R.string.rssfeed)
         setContentView(R.layout.activity_main)
+
+        setSupportActionBar(toolbar)
+
+        // Now get the support action bar
+        val actionBar = supportActionBar
+
+        // Set toolbar title/app title
+        actionBar!!.title = "Hello APP"
+
+        // Set action bar/toolbar sub title
+        actionBar.subtitle = "App subtitle"
+
+        // Set action bar elevation
+        actionBar.elevation = 4.0F
+
+        // Display the app icon in action bar/toolbar
+        actionBar.setDisplayShowHomeEnabled(true)
+        actionBar.setLogo(R.mipmap.ic_launcher)
+        actionBar.setDisplayUseLogoEnabled(true)
+
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs.getString("rssfeed", "<unset>")
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu to use in the action bar
+        val inflater = menuInflater
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle presses on the action bar menu items
+        when (item.itemId) {
+            R.id.action_config -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     protected override fun onStart() {
