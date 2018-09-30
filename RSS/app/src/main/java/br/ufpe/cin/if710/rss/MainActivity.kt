@@ -76,12 +76,16 @@ class MainActivity : AppCompatActivity() {
         val dbHandler = SQLiteRSSHelper(this)
 
         dbHandler.markAsRead(link)
+
+        loadRSSItems()
     }
 
     fun markAsUnread(link: String) {
         val dbHandler = SQLiteRSSHelper(this)
 
         dbHandler.markAsUnread(link)
+
+        loadRSSItems()
     }
 
     fun getUnreadItems():List<ItemRSS> {
@@ -106,6 +110,10 @@ class MainActivity : AppCompatActivity() {
     protected override fun onStart() {
         super.onStart()
 
+        loadRSSItems()
+    }
+
+    fun loadRSSItems() {
         //uso de doasync com anko
         doAsync {
 
@@ -125,6 +133,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     //chama o conteudo carregado do xml getRSSFeed e organiza na interface
