@@ -8,6 +8,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import br.ufpe.cin.if710.rss.db.SQLiteRSSHelper
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.ByteArrayOutputStream
@@ -52,7 +54,6 @@ class MainActivity : AppCompatActivity() {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.getString("rssfeed", "<unset>")
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -60,6 +61,33 @@ class MainActivity : AppCompatActivity() {
         val inflater = menuInflater
         inflater.inflate(R.menu.toolbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    fun readRSSFEED() {
+        val dbHandler = SQLiteRSSHelper(this)
+
+    }
+
+    fun updateRSSFEED() {
+        val dbHandler = SQLiteRSSHelper(this)
+    }
+
+    fun markAsRead(link: String) {
+        val dbHandler = SQLiteRSSHelper(this)
+
+        dbHandler.markAsRead(link)
+    }
+
+    fun markAsUnread(link: String) {
+        val dbHandler = SQLiteRSSHelper(this)
+
+        dbHandler.markAsUnread(link)
+    }
+
+    fun getUnreadItems():List<ItemRSS> {
+        val dbHandler = SQLiteRSSHelper(this)
+
+        return dbHandler.getItems()
     }
 
 
@@ -81,8 +109,10 @@ class MainActivity : AppCompatActivity() {
         //uso de doasync com anko
         doAsync {
 
-            val feedXML = getRssFeed(RSS_FEED)
-            feedRSS = ParserRSS.parse(feedXML)
+            //val feedXML = getRssFeed(RSS_FEED)
+            //feedRSS = ParserRSS.parse(feedXML)
+
+            feedRSS = getUnreadItems()
 
             //atualiza a interface do user apos carregar os dados necessarios
             uiThread {
@@ -112,6 +142,8 @@ class MainActivity : AppCompatActivity() {
         // define o listener para o clique no título do item do rss
         adapter.setOnItemClickListener(object : RSSItemAdapter.OnItemClickListener {
             override fun onClick(view: View, data: ItemRSS) {
+                markAsRead(data.link)
+
                 loadWebpage(data.link)
             }
         })
